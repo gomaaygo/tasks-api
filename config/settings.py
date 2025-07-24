@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+
+from datetime import timedelta
 from decouple import config, Csv
 from pathlib import Path
 
@@ -18,6 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-^jgyegw^fq*z+srqx+n&ic3@_ptr=d1(==3a@h1!#t8+1#r3uv')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1', cast=Csv())
+AUTH_USER_MODEL = 'accounts.User'
 
 
 # Application definition
@@ -28,6 +31,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+
+    # Apps custom
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -59,7 +66,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 DATABASES = {
     'default': {
@@ -71,6 +77,24 @@ DATABASES = {
         'PORT': config('POSTGRES_PORT', default='5432'),
     }
 }
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=3600 * 6 * 1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(seconds=3600 * 6 * 1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
