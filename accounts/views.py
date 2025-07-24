@@ -1,8 +1,10 @@
 from rest_framework import viewsets, permissions
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenRefreshView as TokenRefreshViewBase
 
 from .models import User
-from .serializers import UserSerializer, SignInSerializer
+from .permissions import IsOwnerOrReadOnly
+from .serializers import UserCreateSerializer, UserUpdateSerializer, SignInSerializer, TokenRefreshSerializer
 
 
 class LoginAPIView(TokenObtainPairView):
@@ -10,13 +12,19 @@ class LoginAPIView(TokenObtainPairView):
     serializer_class = SignInSerializer
 
 
+class TokenRefreshView(TokenRefreshViewBase):
+    serializer_class = TokenRefreshSerializer
+
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserCreateSerializer
+        return UserUpdateSerializer
 
     def get_permissions(self):
         if self.action == 'create':
             return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
-
-
+        return [permissions.IsAuthenticated(), IsOwnerOrReadOnly()]
