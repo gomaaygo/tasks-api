@@ -1,5 +1,8 @@
-from .models import User
 from rest_framework import serializers
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+from .models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -24,3 +27,26 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
+class SignInSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        return token
+
+    def validate(self, attrs):
+        try:
+            super().validate(attrs)
+        except AuthenticationFailed as authentication_failed:
+            raise serializers.ValidationError({'message': "Invalid username or password, please try again."}) from authentication_failed
+
+        refresh = self.get_token(self.user)
+        token = refresh.access_token
+
+        return {
+            'id': self.user.id,
+            'name': self.user.name,
+            'email': self.user.email,
+            'token': str(token),
+            'refresh': str(refresh),
+        }

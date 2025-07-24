@@ -24,8 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
         verbose_name_plural = 'Users'
         ordering = ['-created_at']
 
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
+    USERNAME_FIELD = 'email'
 
     def __str__(self):
         return self.email
