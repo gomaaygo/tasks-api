@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category
+from .models import Category, Task
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -18,3 +18,12 @@ class CategoryAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser
+
+
+@admin.register(Task)
+class TaskAdmin(admin.ModelAdmin):
+    list_display = ('user', 'title', 'status', 'execute_at')
+    search_fields = ('title', 'category', 'status')
+    list_filter = ('created_at', 'updated_at')
+    ordering = ('title',)
+    readonly_fields = ('created_at', 'updated_at',)
