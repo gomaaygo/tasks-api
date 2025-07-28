@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   db:
     image: postgres:15
@@ -23,6 +21,17 @@ services:
     depends_on:
       - db
       - redis
+
+  celery:
+    build: .
+    command: celery -A config worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - web
+    env_file:
+      - .env
 
 volumes:
   postgres_data:
