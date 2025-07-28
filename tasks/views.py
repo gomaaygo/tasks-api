@@ -7,13 +7,15 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Task
 from .filters import TaskFilter
 from .serializers import TaskCreateSerializer, TaskUpdateSerializer
+from .mixins.cached_list_mixin import CachedUserListMixin
 from accounts.permissions import IsOwnerOrReadOnly
 
 
-class TaskViewSet(viewsets.ModelViewSet):
+class TaskViewSet(CachedUserListMixin, viewsets.ModelViewSet):
     queryset = Task.objects.all()
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
-    filter_backends = [DjangoFilterBackend, SearchFilter]       
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_class = TaskFilter       
     search_fields = ['title', 'description']
     ordering = ['execute_at'] 
 
